@@ -1,12 +1,30 @@
-name: Test CI
+name: Python CI
 
-on: [push]
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  test:
+  build:
+
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Run a one-liner script
-      run: echo "Workflow is running!"
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
+        if test -f requirements.txt; then pip install -r requirements.txt; fi
+
+    - name: Run tests
+      run: pytest --maxfail=5 --disable-warnings
